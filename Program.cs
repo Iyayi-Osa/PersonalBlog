@@ -1,9 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using PersonalBlog.Models;
+using Microsoft.AspNetCore.Identity;
+using PersonalBlog.Data;
+using Microsoft.AspNetCore.HttpOverrides;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+builder.Services.AddDbContext<PersonalBlogContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("Connection")));
 
 var app = builder.Build();
 
@@ -14,7 +23,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Add Forwarded Headers Middleware configuration
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+});
+
 app.UseHttpsRedirection();
+app.MapControllers();
 
 var summaries = new[]
 {
